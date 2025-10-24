@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Sumário do Treino #{{ treino.id }} - Diário Fitness
+{% endblock %}
+
+{% block head %}
+    <style>
+        /* Estilos específicos para o sumário */
+        .destaque-item { text-align: center; }
+        .destaque-item h3 { 
+            font-size: 1.1rem; 
+            color: #6c757d; /* Cor secundária do Bootstrap */
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .destaque-item p { 
+            font-size: 1.75rem; 
+            font-weight: 300;
+            /* Cor do texto principal (adapta ao dark/light) */
+            color: var(--bs-body-color); 
+            margin-bottom: 0;
+        }
+        .registro-container { 
+            /* Removemos o fundo claro fixo */
+            border-bottom: 1px solid var(--bs-border-color-translucent); 
+            padding: 15px 0; 
+            margin-bottom: 15px; 
+        }
+        .registro-container:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="h2">Sumário do Treino #{{ treino.id }}</h1>
+    <p class="lead text-muted">Data: {{ treino.data_treino | local_time('%d/%m/%Y') }}</p>
+    <hr>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="row text-center gy-3"> <div class="col-md-3 col-6 destaque-item">
+                    <h3>Duração Total</h3>
+                    <p>{{ duracao }}</p>
+                </div>
+                <div class="col-md-3 col-6 destaque-item">
+                    <h3>Volume Total</h3>
+                    <p>{{ "%.1f"|format(volume) }} kg</p>
+                </div>
+                <div class="col-md-3 col-6 destaque-item">
+                    <h3>Total de Séries</h3>
+                    <p>{{ series }}</p>
+                </div>
+                <div class="col-md-3 col-6 destaque-item">
+                    <h3>Total de Repetições</h3>
+                    <p>{{ repeticoes }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h2 class="h5 mb-0">Detalhes do Treino</h2>
+        </div>
+        <div class="card-body">
+            {% for ex_reg in treino.exercicios_registrados %}
+                <div class="registro-container">
+                    <h3 class="h5">{{ ex_reg.exercicio.nome }} <small class="text-muted">({{ ex_reg.exercicio.grupo_muscular }})</small></h3>
+                    
+                    {% if ex_reg.observacoes %}
+                    <p class="mb-2"><strong>Observações:</strong> 
+                        <span class="text-body fst-italic bg-body-secondary p-2 border rounded d-block" style="white-space: pre-wrap;">{{ ex_reg.observacoes | e }}</span>
+                    </p>
+                    {% endif %}
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered table-striped mt-2 mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-center">Série</th>
+                                    <th class="text-center">Repetições</th>
+                                    <th class="text-center">Peso (kg)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for serie in ex_reg.series %} 
+                                <tr>
+                                    <td class="text-center">{{ serie.numero_serie }}</td>
+                                    <td class="text-center">{{ serie.repeticoes }}</td>
+                                    <td class="text-center">{{ serie.peso_kg }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted">Nenhuma série registrada.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted">Nenhum exercício foi registrado neste treino.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="text-center mb-4">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Voltar para a Página Inicial</a>
+    </div>
+{% endblock %}

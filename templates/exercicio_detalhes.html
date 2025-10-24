@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Detalhes de {{ exercicio.nome }} - Diário Fitness
+{% endblock %}
+
+{% block head %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .registro-container { 
+            border-bottom: 1px solid #eee; 
+            padding: 15px 0; 
+            margin-bottom: 15px; 
+        }
+        .registro-container:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .registro-container h3 { margin-top: 0; }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="h2">Histórico de: {{ exercicio.nome }}</h1>
+    <p class="lead text-muted">Grupo Muscular: {{ exercicio.grupo_muscular }}</p>
+
+    {% if recorde %}
+    <div class="alert alert-info shadow-sm text-center">
+        <h4 class="alert-heading mb-0">🏆 Recorde de Peso Máximo: <strong>{{ recorde.peso_kg }} kg</strong></h4>
+        <p class="mb-0">(Para {{ recorde.repeticoes }} repetições em {{ recorde.exercicio_registrado.treino.data_treino | local_time('%d/%m/%Y') }})</p>
+    </div>
+    {% endif %}
+
+    <hr>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            Progressão de Carga (Peso Máximo por Treino)
+        </div>
+        <div class="card-body">
+            <div id="graficoContainer" style="width: 100%; max-width: 900px; margin: 0 auto;">
+                <canvas id="graficoProgressao"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            Registros Detalhados Anteriores
+        </div>
+        <div class="card-body">
+            {% for registro in registros %}
+                <div class="registro-container">
+                    <h3 class="h5">
+                        <a href="{{ url_for('sumario_treino', treino_id=registro.treino.id) }}">
+                            Treino #{{ registro.treino.id }} - {{ registro.treino.data_treino | local_time('%d/%m/%Y') }}
+                        </a>
+                    </h3> 
+                    <table class="table table-sm table-bordered table-striped mt-2">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center">Série</th>
+                                <th class="text-center">Repetições</th>
+                                <th class="text-center">Peso (kg)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for serie in registro.series %} 
+                            <tr>
+                                <td class="text-center">{{ serie.numero_serie }}</td>
+                                <td class="text-center">{{ serie.repeticoes }}</td>
+                                <td class="text-center">{{ serie.peso_kg }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Nenhuma série registrada.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted">Este exercício ainda não foi registrado em nenhum treino.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParts = window.location.pathname.split('/');
+            const exercicioId = urlParts[2]; 
+
+            if (exercicioId) {
+                // A rota da API não usa prefixo de blueprint, mas se usasse, seria 'main.api_exercicio_progressao'
+                fetch(`/api/exercicio/${exercicioId}/progressao`) 
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.labels && data.labels.length >= 2) { 
+                           const ctx = document.getElementById('graficoProgressao').getContext('2d');
+                            const graficoProgressaoChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: data.labels, 
+                                    datasets: [{
+                                        label: 'Peso Máximo (kg)',
+                                        data: data.data, 
+                                        borderColor: 'rgb(255, 99, 132)',
+                                        tension: 0.1
+                                    }]
+                                },
+                                options: { scales: { y: { beginAtZero: false } } }
+                            });
+                        } else {
+                            document.getElementById('graficoContainer').innerHTML = '<h2 class="h5 text-center">Progressão de Carga</h2><p class="text-center text-muted">Registre este exercício com peso em pelo menos dois treinos diferentes para ver o gráfico de progressão.</p>'; 
+                        }
+                    })
+                    .catch(error => {
+                         console.error('Erro ao buscar dados para o gráfico de progressão:', error);
+                         document.getElementById('graficoContainer').innerHTML = '<h2>Progressão de Carga</h2><p class="text-center text-danger">Erro ao carregar dados do gráfico.</p>';
+                    });
+            }
+        });
+    </script>
+{% endblock %}

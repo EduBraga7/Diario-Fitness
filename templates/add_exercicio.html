@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Cadastrar Exercício - Diário Fitness
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="card-title text-center mb-4">Cadastrar Novo Exercício na Biblioteca</h1>
+
+                    <form action="{{ url_for('add_exercicio') }}" method="post">
+                        <div class="mb-3">
+                            <label for="nome_exercicio" class="form-label">Nome do Exercício:</label>
+                            <input type="text" class="form-control" id="nome_exercicio" name="nome_exercicio" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="grupo_muscular" class="form-label">Grupo Muscular:</label>
+                            <input type="text" class="form-control" id="grupo_muscular" name="grupo_muscular" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Cadastrar</button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    <div class="text-center">
+                        <a href="{{ url_for('index') }}">Voltar para a Página Inicial</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Editar Série - Diário Fitness
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="card-title text-center mb-4">Editar Série #{{ serie.numero_serie }}</h1>
+                    
+                    <div class="text-center mb-3">
+                        <h5 class="mb-0">{{ serie.exercicio_registrado.exercicio.nome }}</h5>
+                        <small class="text-muted">
+                            Do <a href="{{ url_for('ver_treino', treino_id=serie.exercicio_registrado.treino.id) }}">Treino #{{ serie.exercicio_registrado.treino.id }}</a>
+                        </small>
+                    </div>
+
+                    <form action="{{ url_for('update_serie', serie_id=serie.id) }}" method="post">
+                        <div class="mb-3">
+                            <label for="repeticoes" class="form-label">Repetições:</label>
+                            <input type="number" class="form-control" id="repeticoes" name="repeticoes" 
+                                   value="{{ serie.repeticoes }}" 
+                                   required min="1" max="99">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="peso_kg" class="form-label">Peso (kg):</label>
+                            <input type="number" step="0.5" class="form-control" id="peso_kg" name="peso_kg" 
+                                   value="{{ serie.peso_kg }}" 
+                                   required min="0" max="999">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Salvar Alterações</button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+
+                    <div class="text-center">
+                        <a href="{{ url_for('ver_treino', treino_id=serie.exercicio_registrado.treino.id) }}">Cancelar e Voltar ao Treino</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

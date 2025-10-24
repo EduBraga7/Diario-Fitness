@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Editar Medição - Diário Fitness
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="card-title text-center mb-4">Editar Medição de {{ medicao.data_medicao | local_time('%d/%m/%Y') }}</h1>
+
+                    <form action="{{ url_for('update_medicao', medicao_id=medicao.id) }}" method="post">
+                        <div class="mb-3">
+                            <label for="peso_kg" class="form-label">Peso Atual (kg):</label>
+                            <input type="number" step="0.1" class="form-control" id="peso_kg" name="peso_kg" required 
+                                   value="{{ medicao.peso_kg }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="circunferencia_braco_cm" class="form-label">Circunferência Braço (cm) (Opcional):</label>
+                            <input type="number" step="0.1" class="form-control" id="circunferencia_braco_cm" name="circunferencia_braco_cm"
+                                   value="{{ medicao.circunferencia_braco_cm or '' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="circunferencia_cintura_cm" class="form-label">Circunferência Cintura (cm) (Opcional):</label>
+                            <input type="number" step="0.1" class="form-control" id="circunferencia_cintura_cm" name="circunferencia_cintura_cm"
+                                   value="{{ medicao.circunferencia_cintura_cm or '' }}">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    <div class="text-center">
+                        <a href="{{ url_for('historico_medicoes') }}">Cancelar e Voltar ao Histórico</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

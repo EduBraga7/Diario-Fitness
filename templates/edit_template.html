@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Editar Modelo: {{ template.nome }}
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="h2 mb-3">Editando Modelo: <strong>{{ template.nome }}</strong></h1>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h5 card-title">Adicionar Exercício ao Modelo</h2>
+                    <form action="{{ url_for('edit_template_page', template_id=template.id) }}" method="post" class="d-flex">
+                        <label for="exercicio_id" class="form-label visually-hidden">Escolha um exercício:</label>
+                        <select name="exercicio_id" id="exercicio_id" class="form-select me-2" required>
+                            <option value="" disabled selected>-- Selecione um exercício da sua biblioteca --</option>
+                            {% for ex_bib in biblioteca %}
+                                <option value="{{ ex_bib.id }}">{{ ex_bib.nome }} ({{ ex_bib.grupo_muscular }})</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary">Adicionar</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Exercícios neste Modelo</h2>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for te in template.exercicios_template %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ te.exercicio.nome }}</strong>
+                                <small class="d-block text-muted">(Grupo: {{ te.exercicio.grupo_muscular }})</small>
+                            </div>
+                            
+                            <form action="{{ url_for('delete_template_exercicio', te_id=te.id) }}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja remover o exercício {{ te.exercicio.nome }} deste modelo?');">Remover</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item text-muted">Nenhum exercício adicionado a este modelo ainda.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="text-center">
+                <a href="{{ url_for('gerenciar_templates') }}" class="btn btn-secondary">Voltar para Gerenciar Modelos</a>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

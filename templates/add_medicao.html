@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Registrar Medição - Diário Fitness
+{% endblock %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="card-title text-center mb-4">Registrar Nova Medição Corporal</h1>
+
+                    <form action="{{ url_for('add_medicao') }}" method="post">
+                        <div class="mb-3">
+                            <label for="peso_kg" class="form-label">Peso Atual (kg):</label>
+                            <input type="number" step="0.1" class="form-control" id="peso_kg" name="peso_kg" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="circunferencia_braco_cm" class="form-label">Circunferência Braço (cm) (Opcional):</label>
+                            <input type="number" step="0.1" class="form-control" id="circunferencia_braco_cm" name="circunferencia_braco_cm">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="circunferencia_cintura_cm" class="form-label">Circunferência Cintura (cm) (Opcional):</label>
+                            <input type="number" step="0.1" class="form-control" id="circunferencia_cintura_cm" name="circunferencia_cintura_cm">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Salvar Medição</button>
+                        </div>
+                    </form>
+                    
+                    <hr>
+                    <div class="text-center">
+                        <a href="{{ url_for('historico_medicoes') }}">Ver Histórico de Medições</a>
+                        <span class="mx-2">|</span> <a href="{{ url_for('index') }}">Voltar para a Página Inicial</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

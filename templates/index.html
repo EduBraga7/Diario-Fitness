@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Página Inicial - Diário Fitness
+{% endblock %}
+
+{% block content %}
+
+    {% if current_user.is_authenticated %}
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-4"> 
+                {% if treino_ativo %}
+                    <h2 class="card-title">Treino em Andamento!</h2>
+                    <p class="card-text">Você tem um treino (#{{ treino_ativo.id }}) em andamento que começou em {{ treino_ativo.hora_inicio | local_time }}.</p>
+                    <a href="{{ url_for('ver_treino', treino_id=treino_ativo.id) }}" class="btn btn-success btn-lg">
+                        Continuar Treino #{{ treino_ativo.id }}
+                    </a>
+                {% else %}
+                    <h2 class="card-title">Ações</h2>
+                    <form action="{{ url_for('novo_treino') }}" method="post" class="d-flex flex-column flex-md-row align-items-md-center">
+                        <label for="template_id" class="form-label me-md-2 mb-2 mb-md-0">Iniciar com Modelo:</label>
+                        <select name="template_id" id="template_id" class="form-select me-md-2 mb-2 mb-md-0">
+                            <option value="">-- Treino Vazio --</option>
+                            {% for template in templates %}
+                                <option value="{{ template.id }}">{{ template.nome }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="d-grid d-md-inline-block mt-2 mt-md-0">
+                            <button type="submit" class="btn btn-primary">Começar Novo Treino</button>
+                        </div>
+                    </form>
+                    <a href="{{ url_for('gerenciar_templates') }}" class="card-link mt-2 d-block">(Gerenciar Modelos)</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+        
+            <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3>Sua Biblioteca de Exercícios</h3>
+                        <a href="{{ url_for('add_exercicio') }}" class="btn btn-success btn-sm">+ Adicionar</a>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for ex in exercicios %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="{{ url_for('ver_exercicio_detalhes', exercicio_id=ex.id) }}">{{ ex.nome }}</a>
+                                    <small class="d-block text-muted">(Grupo: {{ ex.grupo_muscular }})</small>
+                                </div>
+                                <form action="{{ url_for('delete_exercicio_biblioteca', exercicio_id=ex.id) }}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir o exercício {{ ex.nome }} da biblioteca?');">Excluir</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item">Nenhum exercício cadastrado ainda.</li>
+                        {% endfor %}
+                    </ul>
+                </div> 
+                
+                <div class="list-group mt-4 shadow-sm">
+                    <a href="{{ url_for('historico_medicoes') }}" class="list-group-item list-group-item-action">Ver Histórico de Medições</a>
+                    <a href="{{ url_for('add_medicao') }}" class="list-group-item list-group-item-action">Registrar Nova Medição</a>
+                    <a href="{{ url_for('gerenciar_templates') }}" class="list-group-item list-group-item-action">Gerenciar Modelos de Treino</a>
+                </div>
+
+            </div> <div class="col-md-6">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h3>Histórico de Treinos</h3>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for treino in treinos %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="{{ url_for('ver_treino', treino_id=treino.id) }}">
+                                        Treino #{{ treino.id }} - {{ treino.data_treino | local_time('%d/%m/%Y') }}
+                                    </a>
+                                    <small class="d-block text-muted">
+                                    {% if treino.hora_inicio %}
+                                        ({{ treino.hora_inicio | local_time }} 
+                                        {% if treino.hora_fim %}
+                                            - {{ treino.hora_fim | local_time }}) 
+                                        {% else %}
+                                            - Em andamento) 
+                                        {% endif %}
+                                    {% endif %}
+                                    </small>
+                                </div>
+                                <div>
+                                    <form action="{{ url_for('copy_treino', treino_id=treino.id) }}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Copiar</button>
+                                    </form>
+                                    <form action="{{ url_for('delete_treino', treino_id=treino.id) }}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir o Treino #{{ treino.id }}? TODOS os dados serão perdidos!');">Excluir</button>
+                                    </form>
+                                </div>
+                            </li>
+                        {% else %}
+                            <li class="list-group-item">Nenhum treino registrado ainda.</li>
+                        {% endfor %}
+                    </ul>
+                </div> 
+            </div> </div> {% else %}
+        <div class="alert alert-info">
+            Por favor, <a href="{{ url_for('login') }}" class="alert-link">faça o login</a> ou 
+            <a href="{{ url_for('register') }}" class="alert-link">crie uma conta</a> para usar o Diário Fitness.
+        </div>
+    {% endif %}
+
+{% endblock %}

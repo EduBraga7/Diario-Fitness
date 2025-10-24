@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Treino #{{ treino.id }} - Diário Fitness
+{% endblock %}
+
+{% block head %}
+    <style>
+        .exercicio-container {
+            /* Os cards do Bootstrap já cuidam disso */
+        }
+        .excluir-exercicio-btn {
+            /* Vamos usar classes do Bootstrap (btn btn-outline-danger) */
+        }
+        .finalizar-treino-btn {
+            /* Vamos usar classes do Bootstrap (btn btn-success) */
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h1 class="h2">Registrando Treino #{{ treino.id }}</h1>
+            <p class="mb-0"><strong>Data:</strong> {{ treino.data_treino | local_time('%d/%m/%Y') }}</p>
+            {% if treino.hora_inicio %}
+                <p class="mb-0"><strong>Início:</strong> {{ treino.hora_inicio | local_time }}</p>
+            {% endif %}
+        </div>
+        <div>
+            {% if treino.hora_fim %}
+                <span class="badge bg-secondary p-2">Treino Finalizado às {{ treino.hora_fim | local_time }}</span>
+            {% else %}
+                <form action="{{ url_for('finalizar_treino', treino_id=treino.id) }}" method="post">
+                    <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Tem certeza que deseja finalizar este treino?');">Finalizar Treino</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr class="mb-4">
+
+    <h2>Exercícios Realizados neste Treino:</h2>
+    
+    {% for ex_reg in treino.exercicios_registrados %}
+        <div class="card shadow-sm mb-4 exercicio-container">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="h5 mb-0">{{ ex_reg.exercicio.nome }} <small class="text-muted">({{ ex_reg.exercicio.grupo_muscular }})</small></h3>
+                {% if not treino.hora_fim %} <form action="{{ url_for('delete_exercicio_reg', ex_reg_id=ex_reg.id) }}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir este exercício e todas as suas séries deste treino?');">Excluir Exercício</button>
+                </form>
+                {% endif %}
+            </div>
+            
+            <div class="card-body">
+                <div class="table-responsive"> <table class="table table-striped table-hover table-sm">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col" class="text-center">Série</th>
+                            <th scope="col" class="text-center">Repetições</th>
+                            <th scope="col" class="text-center">Peso (kg)</th>
+                            {% if not treino.hora_fim %}
+                            <th scope="col" class="text-center">Ações</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for serie in ex_reg.series %}
+                        <tr>
+                            <td class="text-center">{{ serie.numero_serie }}</td>
+                            <td class="text-center">{{ serie.repeticoes }}</td>
+                            <td class="text-center">{{ serie.peso_kg }}</td>
+                            {% if not treino.hora_fim %}
+                            <td class="text-center">
+                                <a href="{{ url_for('edit_serie_page', serie_id=serie.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                <form action="{{ url_for('delete_serie', serie_id=serie.id) }}" method="post" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja excluir esta série?');">Excluir</button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center p-3">Nenhuma série registrada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <div class="observacoes-area mt-3">
+                    <strong>Observações:</strong> 
+                    <p style="white-space: pre-wrap;" class="bg-body-secondary p-2 border rounded">
+                        {{ ex_reg.observacoes if ex_reg.observacoes else 'Nenhuma observação.' }}
+                    </p>
+                    
+                    {% if not treino.hora_fim %}
+                    <form action="{{ url_for('update_observacao', ex_reg_id=ex_reg.id) }}" method="post">
+                        <div class="mb-3">
+                            <label for="observacoes_{{ ex_reg.id }}" class="form-label visually-hidden">Observações:</label>
+                            <textarea class="form-control" name="observacoes" id="observacoes_{{ ex_reg.id }}" rows="2" placeholder="Digite suas observações aqui...">{{ ex_reg.observacoes or '' }}</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Salvar Observação</button>
+                    </form>
+                    {% endif %}
+                </div>
+                
+                {% if not treino.hora_fim %}
+                <div class="card-footer border-top-0 pt-3">
+                    
+                    <h5 class="h6 mb-2">Adicionar Série para: <strong>{{ ex_reg.exercicio.nome }}</strong></h5>
+                    
+                    <form action="{{ url_for('add_serie', ex_reg_id=ex_reg.id) }}" method="post" class="row g-3 align-items-end">
+                        <div class="col-auto">
+                            <label for="repeticoes_{{ ex_reg.id }}" class="form-label">Repetições:</label>
+                            <input type="number" class="form-control" id="repeticoes_{{ ex_reg.id }}" name="repeticoes" required min="1" max="99">
+                        </div>
+                        <div class="col-auto">
+                            <label for="peso_kg_{{ ex_reg.id }}" class="form-label">Peso (kg):</label>
+                            <input type="number" step="0.5" class="form-control" id="peso_kg_{{ ex_reg.id }}" name="peso_kg" required min="0" max="999">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Adicionar Série</button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+            </div> </div> {% else %}
+        <div class="alert alert-info">Nenhum exercício adicionado a este treino ainda.</div>
+    {% endfor %}
+    
+    <hr>
+
+    {% if not treino.hora_fim %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5 card-title">Adicionar Exercício da Biblioteca ao Treino</h2>
+                <form action="{{ url_for('add_exercicio_reg', treino_id=treino.id )}}" method="post" class="d-flex">
+                    <label for="exercicio_id" class="form-label visually-hidden">Escolha um exercicio</label>
+                    <select name="exercicio_id" id="exercicio_id" class="form-select me-2" required>
+                        <option value="" disabled selected>-- Selecione um exercício --</option>
+                        {% for ex_bib in biblioteca %}
+                            <option value="{{ ex_bib.id }}">{{ ex_bib.nome }} ({{ ex_bib.grupo_muscular }})</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Adicionar</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}
