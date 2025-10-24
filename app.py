@@ -7,9 +7,12 @@ from sqlalchemy.orm import joinedload
 from datetime import datetime, timedelta
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from whitenoise import WhiteNoise
+
 
 # --- Instancia da aplicação Flask---
 app = Flask(__name__)
+app.wsgi_app = WhiteNoise(app.wsgi_app)
 app.secret_key = 'SEGREDO'
 bcrypt = Bcrypt(app)
 
