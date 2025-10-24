@@ -20,7 +20,11 @@ login_manager.login_message_category = 'info'
 login_manager.login_message = 'Por favor, faça o login para acessar esta página.'
 
 # --- BANCO DE DADOS ---
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # --- Instancia do banco de dados ---
