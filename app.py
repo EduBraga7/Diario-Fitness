@@ -156,7 +156,6 @@ def add_exercicio():
         nome = request.form.get("nome_exercicio")
         grupo = request.form.get("grupo_muscular")
         exercicio_existente = Exercicio.query.filter_by(nome=nome, id_usuario=current_user.id).first()
-
         if exercicio_existente:
             flash(f'Erro: Você já cadastrou o exercício "{nome}".', 'error')
         elif not nome or not grupo:
@@ -178,7 +177,6 @@ def delete_exercicio_biblioteca(exercicio_id):
     if exercicio_para_excluir.id_usuario != current_user.id:
         abort(403)
     registros_associados = ExercicioRegistrado.query.filter_by(id_exercicio=exercicio_id).count()
-
     if registros_associados > 0:
         flash(f'Erro: Exercício "{exercicio_para_excluir.nome}" está usado em treinos e não pode ser excluído.', 'error')
     else:
@@ -415,7 +413,7 @@ def sumario_treino(treino_id):
 def delete_treino(treino_id):
     treino_para_excluir = Treino.query.get_or_404(treino_id)
     if treino_para_excluir.id_usuario != current_user.id:
-        abort(403) # <<< CORRIGIDO: Erro de digitação 4403
+        abort(403)
     try:
         for ex_reg in treino_para_excluir.exercicios_registrados:
             for serie in ex_reg.series: db.session.delete(serie)
@@ -427,21 +425,18 @@ def delete_treino(treino_id):
 @app.route('/treino/<int:treino_id>/copy', methods=['POST'])
 @login_required
 def copy_treino(treino_id):
-    # <<< CORRIGIDO: ... substituído pelo código de joinedload >>>
     treino_original = Treino.query.options(
         joinedload(Treino.exercicios_registrados).joinedload(ExercicioRegistrado.series)
     ).get_or_404(treino_id)
-    
     if treino_original.id_usuario != current_user.id:
         abort(403)
-        
     novo_treino = Treino(id_usuario=current_user.id, hora_inicio=datetime.utcnow())
     db.session.add(novo_treino)
     db.session.flush()
     try:
         for ex_reg_original in treino_original.exercicios_registrados:
             novo_ex_reg = ExercicioRegistrado(
-                id_treino=novo_treino.id, # <<< CORRIGIDO: novo_ino -> novo_treino.id >>>
+                id_treino=novo_treino.id,
                 id_exercicio=ex_reg_original.id_exercicio, 
                 observacoes=ex_reg_original.observacoes
             )
@@ -472,8 +467,6 @@ def gerenciar_templates():
         if not nome_template:
             flash('Erro: O nome do modelo é obrigatório.', 'error')
             return redirect(url_for('gerenciar_templates'))
-        
-        # <<< CORRIGIDO: Filtra por usuário >>>
         template_existente = TreinoTemplate.query.filter_by(
             nome=nome_template, 
             id_usuario=current_user.id
@@ -482,29 +475,25 @@ def gerenciar_templates():
         if template_existente:
             flash(f'Erro: Um modelo com o nome "{nome_template}" já existe.', 'error')
         else:
-            # <<< CORRIGIDO: Salva com id_usuario >>>
             novo_template = TreinoTemplate(nome=nome_template, id_usuario=current_user.id)
             db.session.add(novo_template)
             db.session.commit()
             flash(f'Modelo "{nome_template}" criado com sucesso!', 'success')
         return redirect(url_for('gerenciar_templates'))
-        
     templates = TreinoTemplate.query.filter_by(id_usuario=current_user.id).order_by(TreinoTemplate.nome).all()
     return render_template('templates.html', templates=templates)
-
+    
 @app.route('/template/<int:template_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_template_page(template_id):
     template = TreinoTemplate.query.get_or_404(template_id)
     if template.id_usuario != current_user.id:
         abort(403)
-        
     if request.method == 'POST':
         exercicio_id = request.form.get('exercicio_id')
         if not exercicio_id:
             flash('Erro: Selecione um exercício.', 'error')
             return redirect(url_for('edit_template_page', template_id=template_id))
-            
         exercicio_existente = TemplateExercicio.query.filter_by(id_template=template_id, id_exercicio=exercicio_id).first()
         if exercicio_existente:
             flash('Exercício já está no modelo.', 'info')
@@ -514,7 +503,6 @@ def edit_template_page(template_id):
             db.session.commit()
             flash('Exercício adicionado!', 'success')
         return redirect(url_for('edit_template_page', template_id=template_id))
-        
     biblioteca_exercicios = Exercicio.query.filter_by(id_usuario=current_user.id).order_by(Exercicio.nome).all()
     return render_template('edit_template.html', template=template, biblioteca=biblioteca_exercicios)
 
@@ -529,7 +517,6 @@ def delete_template_exercicio(te_id):
         db.session.delete(ex_para_remover)
         db.session.commit()
         flash('Exercício removido do modelo.', 'success')
-    # <<< CORRIGIDO: Função estava incompleta >>>
     except Exception as e:
         db.session.rollback()
         flash(f'Erro ao remover exercício: {e}', 'error')
@@ -543,7 +530,6 @@ def delete_template(template_id):
         abort(403)
     try:
         db.session.delete(template_para_excluir)
-        # <<< CORRIGIDO: Função estava incompleta >>>
         db.session.commit()
         flash(f'Modelo "{template_para_excluir.nome}" excluído com sucesso.', 'success')
     except Exception as e:
