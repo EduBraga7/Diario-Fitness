@@ -2,6 +2,8 @@
 
 Meu site pessoal para registro diário de academia, construído como projeto de estudos.
 
+https://diario-fitness.onrender.com
+
 ## 🚀 Sobre o Projeto
 
 Este é um projeto em Python, usando o framework Flask, que funciona como um diário de academia. Ele permite ao usuário cadastrar os exercícios que pratica, organizar seus treinos diários e acompanhar seu histórico de atividades
