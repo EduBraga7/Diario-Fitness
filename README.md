@@ -10,12 +10,12 @@ Este é um projeto [Python/Flask] criado para... [explique o que ele faz: "permi
 
 * **Backend:** Python (Flask)
 * **Frontend:** HTML, CSS
-* **Banco de Dados:** [SQLite? ou o que você usou]
-* **Deploy:** [Onde ele está? Se não estiver, tudo bem]
+* **Banco de Dados:** SQLite
+* **Deploy:** https://dashboard.render.com
 
 ## 📸 Screenshots
 
-(<img width="1864" height="961" alt="image" src="https://github.com/user-attachments/assets/e13029ff-c513-4bb1-8f96-a577a389431f" />)
+<img width="1864" height="961" alt="image" src="https://github.com/user-attachments/assets/e13029ff-c513-4bb1-8f96-a577a389431f" />
 
 ## Como Rodar Localmente
 
