@@ -4,7 +4,7 @@ Meu site pessoal para registro diário de academia, construído como projeto de 
 
 ## 🚀 Sobre o Projeto
 
-Este é um projeto [Python/Flask] criado para... [explique o que ele faz: "permite ao usuário cadastrar treinos", "visualizar o progresso", etc.]
+Este é um projeto em Python, usando o framework Flask, que funciona como um diário de academia. Ele permite ao usuário cadastrar os exercícios que pratica, organizar seus treinos diários e acompanhar seu histórico de atividades
 
 ## 🛠️ Tecnologias Utilizadas
 
