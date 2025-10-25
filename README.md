@@ -15,7 +15,7 @@ Este é um projeto [Python/Flask] criado para... [explique o que ele faz: "permi
 
 ## 📸 Screenshots
 
-(Tire um print da tela principal do seu app e arraste para cá!)
+(<img width="1864" height="961" alt="image" src="https://github.com/user-attachments/assets/e13029ff-c513-4bb1-8f96-a577a389431f" />)
 
 ## Como Rodar Localmente
 
